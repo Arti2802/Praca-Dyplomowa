@@ -9,7 +9,6 @@ from rest_framework import generics
 class SwimmingFacilitiesList(generics.ListCreateAPIView):
     name = "swimming_facilities"
     ordering_fields = ["length", "style"]
-    #search_fields = ["name"]
 
     def get_serializer_class(self):
         #if self.request.user.is_staff:
