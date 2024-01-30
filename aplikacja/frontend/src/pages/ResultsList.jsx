@@ -22,24 +22,23 @@ export const ResultsList = () => {
         })
     }, [pk2])
     return (
-        <div className="rectangle px-2">
+        <div className="rectangle px-2 col-8">
             <h1><CompetitionTypeDetail competitionType={competitionType}/></h1>
             <DownloadButton link={'results'} competition_type={competitionType} desc={'wyniki'} label={"Pobierz wyniki"}/>
             <h2>Wyniki:</h2>
             <table>
                 <thead>
-                    <th>Lp.</th>
-                    <th>Imię i nazwisko</th>
-                    <th>Seria</th>
-                    <th>Tor</th>
+                    <th className="col pr-4">Lp.</th>
+                    <th className="col px-4 text-center">Imię i nazwisko</th>
+                    <th className="col text-center">Czas</th>
                 </thead>
                 <tbody>
                     {participations.length > 0 ? (
                         participations.map((participation) => (
                             <tr key={participation.id}>
-                                <td className="col-1">{participation.place}.</td>
-                                <td className="col-1">{participation.competitor_id.first_name} {participation.competitor_id.last_name}</td>
-                                <td className="col-1">{participation.disqualification ? 'Dyskwalifikacja' : participation.result}</td>                                
+                                <td className="col">{participation.place}.</td>
+                                <td className="col px-4 text-center">{participation.competitor_id.first_name} {participation.competitor_id.last_name}</td>
+                                <td className="col text-center">{participation.disqualification ? 'Dyskwalifikacja' : participation.result ? participation.result.substring(0, 11) : null}</td>                                
                             </tr>
                         ))) : (
                             <tr>

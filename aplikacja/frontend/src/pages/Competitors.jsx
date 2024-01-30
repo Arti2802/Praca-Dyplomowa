@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-//import { A } from "./A";
 import axios from "axios";
 import ApiURL from "../ApiURL";
+import { CompetitorElement } from "../components/CompetitorElement";
+import toast from "react-hot-toast";
+import { Loading } from "../components/Loading";
 
 export const Competitors = () => {
     const [competitors, setCompetitors] = useState([]);
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         axios.get(`${ApiURL}/competitors/`, {
                 'Content-Type': 'application/json',
@@ -12,22 +15,30 @@ export const Competitors = () => {
         .then(response => {
             console.log(response);
             setCompetitors(response.data);
+            setLoading(false);
+        })
+        .catch(err => {
+            if (!err.response) {
+                toast.error(`Brak połączenia z serwerem`);
+            }
         })
     }, [])
     return (
         <div className="zawodnicy">
-            <div className="text-wrapper-2">Zawodnicy</div>
+            <h1>Zawodnicy</h1>
             <ul>
-            {competitors.length > 0 ? (
-                    competitors.map((competitor) => (
-                        <li key={competitor.id}>
-                            <div className="a">
-                                <p className="tomasz-adamczyk-adam">{competitor.first_name} {competitor.last_name}</p>
-                            </div>
-                        </li>
-                    ))) : (
-                        <h1>Brak zawodników</h1>
-                    )}
+                {loading ? (
+                    <Loading/>
+                ) : (
+                    competitors.length > 0 ? (
+                        competitors.map((competitor) => (
+                            <li key={competitor.id}>
+                                <CompetitorElement competitor={competitor}/>
+                            </li>
+                        ))) : (
+                            <h1>Brak zawodników</h1>
+                    )
+                )}
             </ul>
         </div>
     );

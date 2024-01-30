@@ -5,20 +5,23 @@ import { v4 as uuidv4 } from "uuid";
 import axios from 'axios';
 import ApiURL from "../ApiURL";
 import { FaPlusCircle } from "react-icons/fa";
-import { FcCancel } from "react-icons/fc";
+import { FcCancel, FcCheckmark } from "react-icons/fc";
+import toast from "react-hot-toast";
+import { Loading } from "../components/Loading";
 
 export const AddCompetitonTypes = () => {
     const { pk } = useParams();
     const navigate = useNavigate();
     const [competition, setCompetition] = useState({});
     const [competitionTypes, setCompetitionTypes] = useState([]);
+    const [loading, setLoading] = useState(true);
     const lengths = ['25', '50', '100', '200', '400', '800', '1500'];
     const styles = ['motylkowy', 'grzbietowy', 'klasyczny', 'dowolny', 'zmienny'];
-    const [success, setSuccess] = useState(false);
     useEffect(() => {
         axios.get(`${ApiURL}/competitions/${pk}/`)
         .then(response => {
             setCompetition(response.data);
+            setLoading(false);
         })
     }, [pk])
     const handleLength= (index, e) => {
@@ -33,12 +36,24 @@ export const AddCompetitonTypes = () => {
         setCompetitionTypes(newCompetitionType);
         console.log(competitionTypes);
     };
+    const handleMessage= (index, message) => {
+        const newCompetitionType = [...competitionTypes];
+        competitionTypes[index].message = message;
+        setCompetitionTypes(newCompetitionType);
+    };
+    const handleAdd = (index) => {
+        const newCompetitionType = [...competitionTypes];
+        competitionTypes[index].add = true;
+        setCompetitionTypes(newCompetitionType);
+    }
     const handleCompetitionTypes = () => {
         const data = {
             id: uuidv4(),
             length: '25',
             style: 'motylkowy',
-            message: ''
+            message: '',
+            color: 'red',
+            add: false
         }
         setCompetitionTypes([...competitionTypes, data]);
     };
@@ -51,52 +66,67 @@ export const AddCompetitonTypes = () => {
     };
     const handleAddCompetitionTypes = async(e) => {
         for (let i=0; i<competitionTypes.length; i++) {
-            const female_data = {
-                length: competitionTypes[i].length,
-                style: competitionTypes[i].style,
-                gender: false,
-                competition_id: pk
-            }
-            const male_data = {
-                length: competitionTypes[i].length,
-                style: competitionTypes[i].style,
-                gender: true,
-                competition_id: pk
-            }
-            try {
-                axios.post(`${ApiURL}/competition_types/`, female_data);
-            }
-            catch (err) {
-                if (err.response.status === 400)
-                {
-                    console.log(err.response);
-                    competitionTypes[i].message = 'Coś poszło nie tak';
-                    setSuccess(false);
+            if (!competitionTypes[i].add) {
+                const female_data = {
+                    length: competitionTypes[i].length,
+                    style: competitionTypes[i].style,
+                    gender: false,
+                    competition_id: pk
                 }
-            }
-            try {
-                axios.post(`${ApiURL}/competition_types/`, male_data);
-            }
-            catch (err) {
-                if (err.response.status === 400)
-                {
-                    console.log(err.response);
-                    competitionTypes[i].message = 'Coś poszło nie tak';
-                    setSuccess(false);
+                const male_data = {
+                    length: competitionTypes[i].length,
+                    style: competitionTypes[i].style,
+                    gender: true,
+                    competition_id: pk
+                }
+                try {
+                    const response = await axios.post(`${ApiURL}/competition_types/`, female_data);
+                    if (response.status === 201)
+                    {
+                        handleMessage(i, 'Dodano');
+                        handleAdd(i);
+                    }
+                }
+                catch (err) {
+                    if (err.response.status === 400)
+                    {
+                        handleMessage(i, err.response.data.non_field_errors[0], 'red');
+                    }
+                }
+                try {
+                    const response = await axios.post(`${ApiURL}/competition_types/`, male_data);
+                    if (response.status === 201)
+                    {
+                        handleMessage(i, 'Dodano');
+                        handleAdd(i);
+                    }
+                }
+                catch (err) {
+                    if (err.response.status === 400)
+                    {
+                        handleMessage(i, err.response.data.non_field_errors[0], 'red');
+                    }
                 }
             }
         }
-        console.log(success);
-        if (success)
+        const errors = competitionTypes.filter((competitionType) => !competitionType.add );
+        if (errors.length === 0)
         {
             navigate("/mojeZawody");
-            alert("Udało się dodać konkurencje!");
+            toast.success("Udało się dodać konkurencje!");
         }
     }
     return (
         <div className="logowanie">
             <div className="group-wrapper">
-                <form className="group" onSubmit={handleAddCompetitionTypes}>
+                <form className="group">
+                    {loading ? <Loading/> : (
+                        <div className="text-center mb-4">
+                            <h1>{competition.name}</h1>
+                            <p>{competition.swimming_facility_id.name} {competition.swimming_facility_id.city}</p>
+                            <p>Długość basenu: {competition.swimming_facility_id.pool_length} m</p>
+                        </div>
+                    )}
                     <div className="row row-cols-auto">
                         <div className="col px-1">
                             <h2>Dostępne konkurencje:</h2>
@@ -109,23 +139,31 @@ export const AddCompetitonTypes = () => {
                         {competitionTypes.length > 0 ? (
                             competitionTypes.map((competitionType, index) => (
                                 <li key={index} className="mb-2">
-                                    <select name="length" value={competitionType.length} onChange={(e) => handleLength(index, e)}>
-                                        {lengths.map((length, index) => (
-                                            <option key={index} value={length}>{length}</option>
-                                        ))}
-                                    </select>
-                                    <select name="style" value={competitionType.style} onChange={(e) => handleStyle(index, e)}>
-                                        {styles.map((style, index) => (
-                                            <option key={index} value={style}>{style}</option>
-                                        ))}
-                                    </select>
-                                    <button className="icon" type="button" onClick={() => delCompetitionType(competitionType.id)}><FcCancel className="edit"/></button><br/>
-                                    <span>{competitionType.message}</span>
+                                    {!competitionType.add ? (
+                                        <>
+                                            <select name="length" value={competitionType.length} onChange={(e) => handleLength(index, e)}>
+                                            {lengths.map((length, index) => (
+                                                <option key={index} value={length}>{length}</option>
+                                            ))}
+                                            </select>
+                                            <select name="style" value={competitionType.style} onChange={(e) => handleStyle(index, e)}>
+                                                {styles.map((style, index) => (
+                                                    <option key={index} value={style}>{style}</option>
+                                                ))}
+                                            </select>
+                                            <button className="icon" type="button" onClick={() => delCompetitionType(competitionType.id)}><FcCancel className="edit"/></button><br/>
+                                            <span style={{color: 'red'}}>{competitionType.message}</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>{competitionType.length} m styl {competitionType.style} <FcCheckmark className="edit"/></span>
+                                        </>
+                                    )}
                                 </li>
                             ))
                         ) : null}
                     </ul>
-                    <button type="submit">Zatwierdź</button>
+                    <button className="btn btn-success" type="button" onClick={handleAddCompetitionTypes}>Zatwierdź</button>
                 </form>
             </div>
         </div>

@@ -2,21 +2,31 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import ApiURL from "../ApiURL";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { UserTypeComponent } from "../components/UserTypeComponent";
+import { CompetitorElement } from "../components/CompetitorElement";
+import { PersonalElement } from "../components/PersonalElement";
+import { HeaderAndButton } from "../components/HeaderAndButton";
+import { FaPlusCircle } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { Loading } from "../components/Loading";
 
 export const Club = () => {
+    const navigate = useNavigate();
     const { pk } = useParams();
+    const [club, setClub] = useState({});
+    const [loading, setLoading] = useState(true);
     const [competitors, setCompetitors] = useState([]);
+    const [loading2, setLoading2] = useState(true);
     const [add, setAdd] = useState(false);
     const [data, setData] = useState({
-        first_name: '',
-        last_name: '',
-        gender: true,
-        username: 'test',
-        email: 'test@test.com',
-        password: '123',
-        date_of_birth: '2000-01-01',
-        club_id: pk
+            first_name: '',
+            last_name: '',
+            gender: true,
+            username: 'test',
+            password: '123',
+            date_of_birth: '2000-01-01',
+            club_id: pk
     });
     let addForm = {};
     if (add) {
@@ -26,65 +36,91 @@ export const Club = () => {
         addForm.display = 'none';
     }
     useEffect(() => {
-        axios.get(`${ApiURL}/clubs/${pk}`, {
-                'Content-Type': 'application/json',
-        })
+        axios.get(`${ApiURL}/clubs/${pk}`)
         .then(response => {
             console.log(response);
+            setClub(response.data);
+            setLoading(false);
         })
-        axios.get(`${ApiURL}/clubs/${pk}/competitors/`, {
-            'Content-Type': 'application/json',
+        .catch(err => {
+            if (err.response.status === 404) {
+                navigate('/');
+                toast.error('Ten klub nie istnieje lub został usunięty!');
+            }
         })
+        axios.get(`${ApiURL}/clubs/${pk}/competitors/`)
         .then(response => {
             console.log(response);
             setCompetitors(response.data);
+            setLoading2(false);
         })
-    }, [pk])
+    }, [pk, navigate])
     const handleChange = (e) => {
         const value = e.target.value;
         setData({
             ...data,
             [e.target.name]: value
         });
+        console.log(data);
     };
     const handleCompetitor = () => {
-        axios.post(`${ApiURL}/competitors/`, data)
+        console.log(data);
+        const competitorData = {
+            first_name: data.first_name,
+            last_name: data.last_name,
+            gender: data.gender,
+            username: data.username,
+            password: '.',
+            date_of_birth: data.date_of_birth,
+            club_id: pk
+        }
+        axios.post(`${ApiURL}/clubs/${pk}/competitors/`, competitorData)
         .then(response => {
             console.log(response);
+            setCompetitors([...competitors, response.data]);
+            toast.success('Udało się dodać zawodnika!');
+            setAdd(false);
+        })
+        .catch(err => {
+            toast.error('Wypełnij wszystkie pola!');
         })
     }
     return (
         <div className="klub">
             <div className="div">
                 <div className="overlap-group">
-                    <div className="text-wrapper-2">MTP Kormoran</div>
-                    <img className="icon-medal-star" alt="Icon medal star" src="icon-medal-star.png" />
+                    {loading ? <Loading/> : <h1 className="text-wrapper-2">{club.username}</h1>}
                 </div>
-                <div className="text-wrapper-3">Zawodnicy</div>
-                <button onClick={() => {setAdd(true)}}>Dodaj zawodnika</button>
-                <form style={addForm} onSubmit={handleCompetitor}>
+                <HeaderAndButton header={"Zawodnicy"}>
+                    <PersonalElement id={pk}><UserTypeComponent number='2'><button className="icon" onClick={() => {setAdd(true)}}><FaPlusCircle className="add"/></button></UserTypeComponent></PersonalElement>
+                </HeaderAndButton>
+                <form style={addForm}>
+                    <label htmlFor="username">Nr legitymacji</label>
+                    <input type="text" name="username" pattern="[0-9]{12}" maxLength={12} onChange={handleChange} required/>
                     <label htmlFor="first_name">Imię</label>
-                    <input type="text" name="first_name" onChange={handleChange}/>
+                    <input type="text" name="first_name" onChange={handleChange} required/>
                     <label htmlFor="last_name">Nazwisko</label>
-                    <input type="text" name="last_name" onChange={handleChange}/>
+                    <input type="text" name="last_name" onChange={handleChange} required/>
                     <label htmlFor="date_of_birth">Data urodzenia</label>
-                    <input type="date" name="date_of_birth" onChange={handleChange}/>
+                    <input type="date" name="date_of_birth" onChange={handleChange} required/>
                     <input type="radio" id="kobieta" name="gender" value={false} onChange={handleChange}/>
                     <label htmlFor="kobieta">Kobieta</label>
                     <input type="radio" id="mężczyzna" name="gender" value={true} onChange={handleChange}/>
                     <label htmlFor="mężczyzna">Mężczyzna</label>
-                    <button>Zatwierdź</button>
+                    <button className="btn btn-success" type="button" onClick={handleCompetitor}>Zatwierdź</button>
                 </form>
                 <ul>
-                    {competitors.length > 0 ? (
-                    competitors.map((competitor) => (
-                        <li key={competitor.id}>
-                            <div className="rectangle">
-                                <div className="div">{competitor.first_name} {competitor.last_name}</div>
-                            </div>
-                        </li>
-                    ))) : (
-                        <h1>Brak zawodników</h1>
+                    {loading2 ? (
+                        <Loading/>
+                    ) : (
+                        competitors.length > 0 ? (
+                            competitors.map((competitor) => (
+                                <li key={competitor.id}>
+                                    <CompetitorElement competitor={competitor}/>
+                                </li>
+                            ))) : (
+                                <h3>Brak zawodników</h3>
+                        )
                     )}
                 </ul>
             </div>

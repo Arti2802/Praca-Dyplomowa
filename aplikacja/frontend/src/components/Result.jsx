@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from "react";
-//import "./style.css";
 import InputMask from "react-input-mask";
 import ApiURL from "../ApiURL";
 import axios from "axios";
+import toast from "react-hot-toast";
 
-export const Result = ({participation, gotChanged, pk}) => {
+export const Result = ({participation, gotChanged, set, pk}) => {
     const [result, setResult] = useState("00:__:__.__");
     const [disqualification, setDisqualification] = useState(false);
     const [competitor, setCompetitor] = useState({});
     console.log(participation);
-    // const handleChange = (e) => {
-    //     const value = e.target.value;
-    //     setData({
-    //         ...data,
-    //         [e.target.name]: value
-    //     });
-    // };
     useEffect(() => {
-        axios.get(`${ApiURL}/competitors/${participation.competitor_id}/`)
+        axios.get(`${ApiURL}/competitors/${participation.competitor_id.id}/`)
         .then(response => {
             console.log(response);
             setCompetitor(response.data);
@@ -25,25 +18,31 @@ export const Result = ({participation, gotChanged, pk}) => {
     }, [participation])
     useEffect(() => {
         if (gotChanged !== 1) {
-            const data = {
-                result: result,
-                disqualification: disqualification
-            }
-            console.log(data);
-            axios.put(`${ApiURL}/participations/${participation.id}/`, data)
-            .then(response => {
-                console.log(response);
+            try {
+                const data = {
+                    result: disqualification ? null : result,
+                    disqualification: disqualification
+                }
                 console.log(data);
-            })
-            axios.put(`${ApiURL}/put_places/${pk}/`)
+                axios.put(`${ApiURL}/participations/${participation.id}/`, data)
+                .then(response => {
+                    console.log(response);
+                })
+                axios.put(`${ApiURL}/put_places/${pk}/`);
+                set(1);
+            }
+            catch (err) {
+                toast.error(err);
+            }
         }
-    }, [disqualification, result, participation, gotChanged, pk])
+    }, [disqualification, result, participation, gotChanged, set, pk])
+    // const pat = "[0-1]{1}[0-9]{1}:[0-5]{1}[0-9]{1}:[0-5]{1}[0-9]{1}.[0-9]{2}";
     return (
         <>
             <p>{competitor.first_name} {competitor.last_name}</p>
-            <InputMask mask="99:99:99.99" name="result" value={result} onChange={(e) => setResult(e.target.value)}/>
+            <InputMask mask="99:99:99.99" name="result" pattern="[0-1]{1}[0-9]{1}:[0-5]{1}[0-9]{1}:[0-5]{1}[0-9]{1}.[0-9]{2}" value={result} disabled={disqualification} onChange={(e) => setResult(e.target.value)}/>
             <label>Dyskwalifikacja</label>
-            <input type="checkbox" name="disqualification" onChange={(e) => setDisqualification(e.target.value)}/>
+            <input type="checkbox" name="disqualification" value={disqualification} onChange={(e) => setDisqualification((prev) => !prev)}/>
         </>           
     );
 }

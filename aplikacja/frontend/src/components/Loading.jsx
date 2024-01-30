@@ -1,9 +1,9 @@
 import ReactLoading from 'react-loading';
 
-export const Loading = () => {
+export const Loading = ({color, size}) => {
     return (
-        <div>
-            <ReactLoading type='spin' color='#00ff00'/>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <ReactLoading type='spin' color={color ? color : '#0000ff'} height={size ? size : '64px'} width={size ? size : '64px'}/>
         </div>
     )
 }

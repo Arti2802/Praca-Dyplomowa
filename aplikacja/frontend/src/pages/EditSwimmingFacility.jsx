@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from 'axios';
 import ApiURL from "../ApiURL";
+import toast from "react-hot-toast";
+import { InputGroup } from "../components/InputGroup";
+import { Loading } from "../components/Loading";
 
 
 export const EditSwimmingFacility = () => {
@@ -10,15 +13,19 @@ export const EditSwimmingFacility = () => {
     const navigate = useNavigate();
     //const [errMsg, setErrMsg] = useState("");
     const [swimmingFacility, setSwimmingFacility] = useState({});
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         axios.get(`${ApiURL}/swimming_facilities/${pk}/`)
         .then(response => {
             console.log(response);
             setSwimmingFacility(response.data);
+            setLoading(false);
         })
     }, [pk])
     const handleChange = (e) => {
         const value = e.target.value;
+        console.log(typeof(value));
+        console.log(typeof(swimmingFacility.pool_length))
         setSwimmingFacility({
             ...swimmingFacility,
             [e.target.name]: value
@@ -38,39 +45,36 @@ export const EditSwimmingFacility = () => {
             console.log(response);
            if (response.status === 200)
             {
-                alert("Udało się edytować obiekt!");
-                navigate("/obiektyPlywackie", { replace: true });
-                window.location.reload(false);
+                toast.success("Udało się edytować obiekt!");
+                navigate("/obiektyPlywackie");
+                //window.location.reload(false);
             }
         }
-        catch {
-            console.log("Hej");
+        catch (err) {
+            console.log(err);
         }
     }
     return (
         <div className="logowanie">
-        <div className="group-wrapper">
-            <form className="group" onSubmit={handleEdit}>
-                <div>
-                    <label className="div">Nazwa</label>
-                    <input className="text-field" name="name" defaultValue={swimmingFacility.name} onChange={handleChange}/>
+            {loading ? <Loading/> : (
+                <div className="group-wrapper">
+                    <h1 style={{position: 'absolute', top: '270px', left: '610px'}}>Edytuj obiekt pływacki</h1>
+                    <form className="group" onSubmit={handleEdit}>
+                        <InputGroup label={"Nazwa obiektu"} name={"name"} value={swimmingFacility.name} onChange={handleChange}/>
+                        <InputGroup label={"Adres"} name={"address"} value={swimmingFacility.address} onChange={handleChange}/>
+                        <InputGroup label={"Miasto"} name={"city"} value={swimmingFacility.city} onChange={handleChange}/>
+                        <div className="mt-3 mb-4">
+                            <label htmlFor="pool_length">Długość basenu</label>
+                            <select className="form-select border border-primary" name="pool_length" onChange={handleChange} defaultValue={swimmingFacility.pool_length + ''}>
+                                <option value={0} disabled>Wybierz długość basenu</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                            </select>
+                        </div>
+                        <button className="btn btn-success w-100" type="submit">Zatwierdź</button>
+                    </form>
                 </div>
-                <div>
-                    <label className="div">Adres</label>
-                    <input className="text-field" type="text" name="address" defaultValue={swimmingFacility.address} onChange={handleChange}/>
-                </div>
-                <div>
-                    <label className="div">Miasto</label>
-                    <input className="text-field" type="text" name="city" defaultValue={swimmingFacility.city} onChange={handleChange}/>
-                </div>
-                <select name="pool_length" onChange={handleChange} value={swimmingFacility.pool_length}>
-                    <option value={0} disabled>Wybierz długość basenu</option>
-                    <option value='25'>25</option>
-                    <option value='50'>50</option>
-                </select>
-                <button type="submit">Zatwierdź</button>
-            </form>
+            )}
         </div>
-    </div>
     );
 };

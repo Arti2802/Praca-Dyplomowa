@@ -3,146 +3,87 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from 'axios';
 import ApiURL from "../ApiURL";
-
+import toast from "react-hot-toast";
+import { InputGroup } from "../components/InputGroup";
+import { Loading } from "../components/Loading";
 
 export const EditCompetiton = () => {
     const { pk } = useParams(); 
     const navigate = useNavigate();
-    //const [errMsg, setErrMsg] = useState("");
-    const [name, setName] = useState("");
-    const [date_start, setDateStart] = useState("");
-    const [date_stop, setDateStop] = useState("");
-    // const [data, setData] = useState({
-    //     name: "",
-    //     date_start: "",
-    //     date_stop: "",
-    //     status: false,
-    //     swimming_facility_id: 1,
-    //     organiser_id: 1,
-    //   });
+    const [competition, setCompetition] = useState({});
+    const [swimmingFacilities, setSwimmingFacilities] = useState([]);
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
-        axios.get(`${ApiURL}/competitions/${pk}/`, {
-            'Content-Type': 'application/json',
-        })
+        axios.get(`${ApiURL}/competitions/${pk}/`)
         .then(response => {
             console.log(response);
-            setName(response.data.name);
-            setDateStart(response.data.date_start);
-            setDateStop(response.data.date_stop);
+            setCompetition(response.data);
+            axios.get(`${ApiURL}/swimming_facilities/`)
+            .then(response => {
+                console.log(response);
+                setSwimmingFacilities(response.data);
+                setLoading(false);
+            })
         })
     }, [pk])
-    // const handleChange = (e) => {
-    //     const value = e.target.value;
-    //     setData({
-    //         ...data,
-    //         [e.target.name]: value
-    //     });
-    // };
-    // useEffect(() => {
-    //     if (session === "true") {
-    //       navigate("/"); 
-    //     }
-    // }, [navigate]);
-    // const handleLogin = async(e) => {
-    //     e.preventDefault();
-    //     try {
-    //         const Userdata = {
-    //             name: data.name,
-    //             date_start: data.date_start,
-    //             date_stop: data.date_stop,
-    //             status: false,
-    //             swimming_facility_id: 1,
-    //             organiser_id: 1,
-    //         }
-    //         console.log(Userdata);
-    //         const response = await axios.post(`${ApiURL}/competitions/`, Userdata);
-    //         // body: JSON.stringify({
-    //         //     id_username: email,
-    //         //     id_password: password
-    //          // }
-    //         console.log(response);
-    //        if (response.status === 201)
-    //         {
-    //             sessionStorage.setItem('isLogged', 'true');
-    //             //const data = await response.json();
-    //             sessionStorage.setItem('Token', data.auth_token);
-    //             sessionStorage.setItem('email', data.email);
-    //             navigate("/zawody", { replace: true });
-    //             alert("Udało się dodać zawody!");
-    //             //window.location.reload(false);
-    //         }
-    //         else
-    //         {
-    //             setErrMsg('Błędne dane logowania');
-    //         }
-    //     } catch (err) {
-    //         if (!err.response) {
-    //             setErrMsg('Brak odpowiedzi od serwera');
-    //         } else if (err.response?.status === 400){
-    //             setErrMsg('Brak e-maila lub hasła');
-    //         } else if (err.response?.status === 401){
-    //             setErrMsg('Brak autoryzacji');
-    //         } else {
-    //             setErrMsg('Logowanie nie powiodło się');
-    //         }
-    //     }
-    // }
+    const handleChange = (e) => {
+        const value = e.target.value;
+        setCompetition({
+            ...competition,
+            [e.target.name]: value
+        });
+    };
+    const changeDate = (date) => {
+        return date && (date.substring(0, 10) + ' ' + date.substring(11, 16));
+    }
     const handleEdit = async(e) => {
         e.preventDefault();
         try {
             const Userdata = {
-                name: name,
-                date_start: date_start,
-                date_stop: date_stop,
-                status: false,
-                swimming_facility_id: 1,
-                organiser_id: 1,
+                name: competition.name,
+                date_start: competition.date_start,
+                date_stop: competition.date_stop,
+                status: competition.status,
+                swimming_facility_id: competition.swimming_facility_id,
+                organiser_id: competition.organiser_id,
             }
             console.log(Userdata);
-            const response = await axios.put(`${ApiURL}/competitions/1/`, Userdata);
-            // body: JSON.stringify({
-            //     id_username: email,
-            //     id_password: password
-             // }
+            const response = await axios.put(`${ApiURL}/competitions/${pk}/`, Userdata);
             console.log(response);
            if (response.status === 200)
             {
-                sessionStorage.setItem('isLogged', 'true');
-                //const data = await response.json();
-                // sessionStorage.setItem('Token', data.auth_token);
-                // sessionStorage.setItem('email', data.email);
-                navigate("/zawody", { replace: true });
-                alert("Udało się dodać zawody!");
-                //window.location.reload(false);
+                navigate("/mojeZawody");
+                toast.success("Udało się edytować zawody!");
             }
         }
-        catch {
-            console.log("Hej");
+        catch (err) {
+            toast.error(err.response.non_field_errors[0]);
         }
     }
     return (
         <div className="logowanie">
-            <p>E</p>
-            <div className="group-wrapper">
-                <form className="group" onSubmit={handleEdit}>
-                    <div>
-                        <label className="div">Nazwa</label>
-                        <input className="text-field" name="name" value={name} 
-                        onChange={(e) => setName(e.target.value)}/>
-                    </div>
-                    <div>
-                        <label className="div">Data rozpoczęcia</label>
-                        <input className="text-field" type="datetime-local" name="date_start" value={date_start} 
-                        onChange={(e) => setDateStart(e.target.value)}/>
-                    </div>
-                    <div>
-                        <label className="div">Data zakończenia</label>
-                        <input className="text-field" type="datetime-local" name="date_stop" value={date_stop}
-                        onChange={(e) => setDateStop(e.target.value)}/>
-                    </div>
-                    <button className="primary-button" type="submit">Zatwierdź</button>
-                </form>
-            </div>
+                    {loading ? <Loading/> : (
+                        <div className="group-wrapper">
+                            <h1 style={{position: 'absolute', top: '270px', left: '670px'}}>Edytuj zawody</h1>
+                            <form className="group" onSubmit={handleEdit}>
+                                <InputGroup label={"Nazwa zawodów"} name={"name"} value={competition.name} onChange={handleChange}/>
+                                <InputGroup label={"Data rozpoczęcia"} type={"datetime-local"} name={"date_start"} value={changeDate(competition.date_start)} onChange={handleChange}/>
+                                <InputGroup label={"Data zakończenia"} type={"datetime-local"} name={"date_stop"} value={changeDate(competition.date_stop)} onChange={handleChange}/>
+                                <label className="form-label" htmlFor="swimming_facility_id">Miejsce zawodów</label>
+                                <div className="mb-4">
+                                    <select className="form-select border border-primary" name="swimming_facility_id" onChange={handleChange} defaultValue={competition.swimming_facility_id.id} required>
+                                        <option disabled value="">Wybierz obiekt</option>
+                                        {swimmingFacilities.map((swimmingFacility) => (
+                                            <option value={swimmingFacility.id} key={swimmingFacility.id}>{swimmingFacility.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="align-items-center">
+                                    <button className="btn btn-success w-100" type="submit">Zatwierdź</button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
         </div>
     );
 };

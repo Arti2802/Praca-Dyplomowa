@@ -1,6 +1,6 @@
 import ApiURL from "../ApiURL";
 import axios from "axios";
-//import { AiOutlineFilePdf } from "react-icons/ai";
+import { AiOutlineFilePdf } from "react-icons/ai";
 
 export const DownloadButton = ({link, competition_type, desc, label}) => {
     const handleDownload = () => {
@@ -25,6 +25,6 @@ export const DownloadButton = ({link, competition_type, desc, label}) => {
         })
     }
     return (
-        <button className="btn btn-primary" onClick={handleDownload}>{label}</button>
+        <button className="btn btn-light" onClick={handleDownload}>{label} <AiOutlineFilePdf/></button>
     )
 }

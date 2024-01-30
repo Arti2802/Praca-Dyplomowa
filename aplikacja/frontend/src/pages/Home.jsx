@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import ApiURL from "../ApiURL";
 import axios from "axios";
-// import { UserTypeComponent } from "../components/UserTypeComponent";
+import toast from "react-hot-toast";
 
 
 export const Home = () => {
@@ -10,6 +10,11 @@ export const Home = () => {
         axios.get(`${ApiURL}/competitions/1/`)
         .then(response => {
             console.log(response);
+        })
+        .catch(err => {
+            if (!err.response) {
+                toast.error(`Brak połączenia z serwerem`);
+            }
         })
     }, [])
     return (

@@ -1,10 +1,10 @@
-.logowanie {
+ .logowanie {
     background-color: #ffffff;
     display: flex;
     flex-direction: row;
     justify-content: center;
     width: 100%;
-}
+} 
 
 .logowanie .group-wrapper {
     background-color: #ffffff;
@@ -97,65 +97,264 @@
 }
 
 .rectangle {
-    background-color: #d9d9d9;
+    background-color: #9fddf0;
+    /* border: 1px solid; 
+    position: relative; */
+    }
+    .rejestracja {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    }
+    .rejestracja .div {
+    background-color: #ffffff;
+    height: 1024px;
     position: relative;
-    width: 985px;
+    width: 1440px;
     }
-    /*
-    .rectangle .text-wrapper {
-    color: #000000;
-    font-family: "Inter-Regular", Helvetica;
-    font-size: 20px;
-    font-weight: 400;
-    height: 16px;
-    left: 20px;
-    letter-spacing: 0;
-    line-height: 16px;
+    .rejestracja .overlap-group {
+    height: 532px;
+    left: 515px;
     position: absolute;
-    top: 160px;
-    width: 402px;
+    top: 199px;
+    width: 362px;
     }
-    .rectangle .div {
-    color: #000000;
+    .rejestracja .group {
+    height: 532px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 362px;
+    }
+    .rejestracja .input {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 360px;
+    }
+    .rejestracja .text-wrapper {
+    align-self: stretch;
+    color: #51515b;
+    font-family: "Inter-Regular", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 22.5px;
+    margin-top: -1px;
+    position: relative;
+    }
+    .rejestracja .text-field {
+    align-self: stretch;
+    background-color: #ffffff;
+    border: 2px solid;
+    border-color: #d9d9d9;
+    border-radius: 8px;
+    flex: 0 0 auto;
+    position: relative;
+    width: 100%;
+    }
+    .rejestracja .input-2 {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    left: 0;
+    position: absolute;
+    top: 120px;
+    width: 360px;
+    }
+    .rejestracja .email {
+    align-self: stretch;
+    background: transparent;
+    border: none;
+    color: #51515b;
+    font-family: "Inter-Regular", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 22.5px;
+    margin-top: -1px;
+    padding: 0;
+    position: relative;
+    }
+    .rejestracja .input-3 {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    left: 0;
+    position: absolute;
+    top: 240px;
+    width: 360px;
+    }
+    .rejestracja .primary-button {
+    align-items: center;
+    background-color: #0d398e;
+    border-radius: 5px;
+    display: flex;
+    height: 94px;
+    justify-content: center;
+    left: 20px;
+    overflow: hidden;
+    padding: 0px 16px;
+    position: absolute;
+    top: 438px;
+    width: 320px;
+    }
+    .rejestracja .text-wrapper-2 {
+    color: #ffffff;
     font-family: "Inter-Bold", Helvetica;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 700;
-    height: 69px;
     letter-spacing: 0;
-    line-height: 16px;
-    position: absolute;
-    width: 610px;
-    margin-block: 150px;
+    line-height: normal;
+    position: relative;
+    width: fit-content;
     }
-    .rectangle .status-zaakceptowane {
+    .rejestracja .text-wrapper-3 {
+    color: #51515b;
+    font-family: "Inter-Regular", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    left: 0;
+    letter-spacing: 0;
+    line-height: 22.5px;
+    position: absolute;
+    top: 347px;
+    width: 360px;
+    }
+    .rejestracja .radio-with-label {
+    align-items: center;
+    display: inline-flex;
+    gap: 6px;
+    left: 49px;
+    position: absolute;
+    top: 392px;
+    }
+    .rejestracja .radio {
+    background-color: #ffffff;
+    border: 3px solid;
+    border-color: #5470ff;
+    border-radius: 100px;
+    box-shadow: 0px 3px 5px #2d2d4214;
+    height: 20px;
+    position: relative;
+    width: 20px;
+    }
+    .rejestracja .text-wrapper-4 {
     color: #000000;
     font-family: "Inter-Regular", Helvetica;
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 400;
-    height: 63px;
-    left: 732px;
     letter-spacing: 0;
-    line-height: 16px;
-    position: absolute;
-    top: 137px;
-    width: 253px;
+    line-height: 20px;
+    margin-top: -1px;
+    position: relative;
+    white-space: nowrap;
+    width: fit-content;
     }
-    .rectangle .text-wrapper-2 {
+    .rejestracja .radio-with-label-2 {
+    align-items: center;
+    display: inline-flex;
+    gap: 6px;
+    left: 180px;
+    position: absolute;
+    top: 392px;
+    }
+    .rejestracja .radio-2 {
+    background-color: #ffffff;
+    border: 1px solid;
+    border-color: #d9d9d9;
+    border-radius: 100px;
+    box-shadow: 0px 3px 5px #2d2d4214;
+    height: 20px;
+    position: relative;
+    width: 20px;
+    }
+    .rejestracja .p {
     color: #000000;
     font-family: "Inter-Regular", Helvetica;
-    font-size: 20px;
+    font-size: 12px;
     font-weight: 400;
-    height: 40px;
-    left: 20px;
+    left: 497px;
     letter-spacing: 0;
-    line-height: 16px;
+    line-height: 44px;
     position: absolute;
-    top: 86px;
-    width: 385px;
-    }*/
+    text-align: center;
+    top: 762px;
+    width: 378px;
+    }
+    .logowanie .p {
+        color: #000000;
+        font-family: "Inter-Regular", Helvetica;
+        font-size: 12px;
+        font-weight: 400;
+        left: 527px;
+        letter-spacing: 0;
+        line-height: 44px;
+        position: absolute;
+        text-align: center;
+        top: 662px;
+        width: 378px;
+        }
     ul {
         list-style-type: none;
     }
     .navbar bg-body-tertiary {
         width: 100%;
+        background-color: #529CF9;
     }
+    .navbar {
+        background-color: #529CF9;
+    }
+    a {
+        text-decoration: none;
+    }
+    .icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+    .edit, .delete {
+        width: 30px;
+        height: 30px;
+    }
+    .add {
+        color: green;
+        width: 35px;
+        height: 35px;
+    }
+    .delete {
+        color: #dc3545;
+    }
+    .delete :hover {
+        color: red;
+    }
+    .my-color {
+        background-color: "#529CF9";
+    }
+    .my-color2 {
+        background-color: "#4082D6";
+    }
+    .my_list {
+        border-style: solid;
+        border-color: black;
+        border-width: 1px;
+        z-index: 2;
+    }
+    .dropdown-item {
+        cursor: pointer;
+        color: #ffffff;
+    }
+    .zawodnicy-col {
+        border-color: #0d398e;
+    }
+    /* #root {
+        background-color: rgba(21, 132, 162, 0.078)
+    } */

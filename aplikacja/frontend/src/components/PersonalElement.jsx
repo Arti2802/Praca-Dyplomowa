@@ -1,7 +1,7 @@
 export const PersonalElement = ({id, children}) => {
     return (
         <>
-            {id == sessionStorage.getItem('id') ? (
+            {id + '' === sessionStorage.getItem('id') ? (
                 children
             ) : null}
         </>
