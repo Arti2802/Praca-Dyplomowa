@@ -1,11 +1,9 @@
-from django.shortcuts import render
 from .models import Participation
-from .serializers import ParticipationSerializer
-from rest_framework.decorators import api_view
+from .serializers import ParticipationSerializer, ParticipationPostSerializer
 from rest_framework.response import Response
 from rest_framework import generics
 import io
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -15,9 +13,9 @@ from rest_framework.views import APIView
 
 class ParticipationsList(generics.ListCreateAPIView):
     name = "participations"
-    filterset_fields = ["series_nr"]
+    filterset_fields = ["series_nr", "result"]
     ordering_fields = ["series_nr", "result", "disqualification"]
-    #search_fields = ["name"]
+    ordering = ["series_nr", "track_nr"]
 
     def get_serializer_class(self):
         #if self.request.user.is_staff:
@@ -29,8 +27,24 @@ class ParticipationsList(generics.ListCreateAPIView):
         if pk:
             return Participation.objects.filter(competition_type_id=pk)
         elif comp:
-            return Participation.objects.filter(competitor_id=comp)
+            return Participation.objects.filter(competitor_id=comp).exclude(result__isnull=True, disqualification=False)
         return Participation.objects.all()
+
+
+class ResultsList(generics.ListAPIView):
+    name = 'results-list'
+    serializer_class = ParticipationSerializer
+    ordering = ['disqualification', 'place']
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        return Participation.objects.filter(competition_type_id=pk, place__isnull=False)
+
+
+class AddParticipation(generics.ListCreateAPIView):
+    name = 'Add participation'
+    serializer_class = ParticipationPostSerializer
+    queryset = Participation.objects.all()
 
 
 class ParticipationDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -43,14 +57,6 @@ class ParticipationDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         #if self.request.user.is_staff:
         return Participation.objects.all()
-
-
-@api_view(['GET', 'POST'])
-def participations_list(request):
-    if request.method == 'GET':
-        participations = Participation.objects.all()
-        serializer = ParticipationSerializer(participations, many=True)
-        return Response(serializer.data)
 
 
 def best_result(comp_id, length, style):
@@ -69,7 +75,7 @@ def generate_participations_list(request, pk):
     competition_type_info = CompetitionType.objects.get(id=pk)
     p.drawString(100, 760, f'{str(competition_type_info)}')
 
-    participations = Participation.objects.filter(competition_type_id=pk)
+    participations = Participation.objects.filter(competition_type_id=pk).order_by('series_nr', 'track_nr')
     p.drawString(100, 730, 'Imię i nazwisko')
     p.drawString(200, 730, 'Seria')
     p.drawString(250, 730, 'Tor')
@@ -78,11 +84,12 @@ def generate_participations_list(request, pk):
     number = 1
     for participation in participations:
         best = best_result(participation.competitor_id, competition_type_info.length, competition_type_info.style)
-        best = best if best else 'NT'
+        best = str(best)[:11] if best else 'NT'
+        sign = '-'
         p.drawString(75, y, f'{number}.')
         p.drawString(100, y, f' {participation.competitor_id.first_name} {participation.competitor_id.last_name}')
-        p.drawString(200, y, f' {participation.series_nr}')
-        p.drawString(250, y, f' {participation.track_nr}')
+        p.drawString(200, y, f' {participation.series_nr or sign}')
+        p.drawString(250, y, f' {participation.track_nr or sign}')
         p.drawString(300, y, f' {best}')
         y -= 40
         number += 1
@@ -103,12 +110,14 @@ def generate_results_list(request, pk):
     competition_type_info = CompetitionType.objects.get(id=pk)
     p.drawString(100, 750, f'{str(competition_type_info)}')
 
-    participations = Participation.objects.filter(competition_type_id=pk).order_by('result')
+    participations = Participation.objects.filter(competition_type_id=pk).exclude(result__isnull=True, disqualification=False).order_by('disqualification', 'result')
     y = 700
+    info = 'DSQ'
     for participation in participations:
+        time = str(participation.result)[:11]
         p.drawString(50, y, f'{participation.place}.')
         p.drawString(100, y, f' {participation.competitor_id.first_name} {participation.competitor_id.last_name}')
-        p.drawString(200, y, f'{participation.result}')
+        p.drawString(200, y, f'{info if participation.disqualification else time}')
         y -= 40
 
     filename = 'wyniki ' + str(competition_type_info) + '.pdf'
@@ -123,10 +132,18 @@ class PutPlaces(APIView):
     name = 'places'
 
     def put(self, request, pk):
-        participations = Participation.objects.filter(competition_type_id=pk).order_by('result')
+        participations = Participation.objects.filter(competition_type_id=pk).exclude(result__isnull=True, disqualification=False).order_by('disqualification', 'result')
         number = 1
-        for participation in participations:
-            participation.place = number
+        for i in range(len(participations)):
+            participation = participations[i]
+            if i != 0:
+                participation_prev = participations[i - 1]
+                if participation_prev.result == participation.result:
+                    participation.place = participation_prev.place
+                else:
+                    participation.place = number
+            else:
+                participation.place = number
             participation.save()
             number += 1
         return Response({'Udało się przydzielić miejsca'}, 200)

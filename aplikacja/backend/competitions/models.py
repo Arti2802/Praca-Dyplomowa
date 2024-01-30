@@ -1,6 +1,6 @@
 from django.db import models
 from swimming_facilities.models import SwimmingFacility
-from members.models import Organiser
+from users.models import Organiser
 from competitions.statuses import Statuses
 
 

@@ -50,12 +50,14 @@ INSTALLED_APPS = [
     'django_filters',
     'djoser',
     'corsheaders',
-    'members',
     'swimming_facilities',
     'competitions',
     'competition_types',
     'participations',
+    'users',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -88,14 +90,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
+DJOSER = {
+    'LOGIN_FIELD': 'username',
+    'PASSWORD_RESET_CONFIRM_URL': '#/password_reset/{uid}/{token}/',
+    'SEND_ACTIVATION_EMAIL': True,
+}
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'adminAZ',
+        'PASSWORD': 'bowserjr',
+        'HOST': 'zawodyplywackiedb.c9dgx1nckzng.eu-north-1.rds.amazonaws.com',
+        'PORT': '5432'
     }
 }
 

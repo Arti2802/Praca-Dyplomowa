@@ -28,11 +28,3 @@ class SwimmingFacilityDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         #if self.request.user.is_staff:
         return SwimmingFacility.objects.all()
-
-
-@api_view(['GET', 'POST'])
-def swimming_facilities_list(request):
-    if request.method == 'GET':
-        competitions = SwimmingFacility.objects.all()
-        serializer = SwimmingFacilitySerializer(competitions, many=True)
-        return Response(serializer.data)

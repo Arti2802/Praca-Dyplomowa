@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import Competitor, Organiser, Club, User
 
-# Register your models here.
+
+admin.site.register(Competitor)
+admin.site.register(Organiser)
+admin.site.register(Club)
+admin.site.register(User)

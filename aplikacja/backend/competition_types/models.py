@@ -6,7 +6,7 @@ from competition_types.lengths import Lengths
 
 class CompetitionType(models.Model):
     style = models.CharField(choices=Styles.choices, max_length=255, default=Styles.A)
-    length = models.CharField(choices=Lengths.choices, max_length=255, default=Lengths.A)
+    length = models.IntegerField(choices=Lengths.choices, default=Lengths.A)
     gender = models.BooleanField(default=True)
     competition_id = models.ForeignKey(Competition, on_delete=models.CASCADE)
 
@@ -15,4 +15,4 @@ class CompetitionType(models.Model):
             gender = 'mężczyzn'
         else:
             gender = 'kobiet'
-        return str(self.length + 'm styl ' + self.style + ' ' + gender + ' ' + self.competition_id.name)
+        return str(self.length) + 'm styl ' + str(self.style) + ' ' + gender + ' ' + str(self.competition_id.name)

@@ -27,7 +27,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('', include('competitions.urls')),
     path('', include('competition_types.urls')),
-    path('', include('members.urls')),
     path('', include('participations.urls')),
     path('', include('swimming_facilities.urls')),
 ]
